@@ -1,11 +1,5 @@
-# Performance Results
-
-The last complete run of this benchmark setup yielded the results presented
-below. This report was generated on `r Sys.time()`.
-
-```{r load-scripts, echo=FALSE, include=FALSE}
 # load libraries, the data, and prepare it
-if (Sys.getenv("RSTUDIO") == "1") { setwd("/Users/smarr/Projects/are-we-fast-yet/report") }
+if (Sys.getenv("RSTUDIO") == "1") { setwd("/home/octavel/PhD_Programs/git_repos/are-we-fast-yet/report") }
 source("scripts/libraries.R", chdir=TRUE)
 opts_chunk$set(dev = 'png',
                dev.args=list(pointsize=10),
@@ -21,7 +15,7 @@ vm_names <- c(
   "GraalBasic"            = "Graal Core",
   "GraalC2"               = "HotSpot C2, jvmi",
   "GraalEnterprise"       = "Graal VM",
-  "GraalJS"               = "Graal.js",
+  "GraalJS-HotspotEE-jit" = "Graal.js EE 22.0.0.2 Hotspot",
   
   "JRubyC2"               = "JRuby (C2, jvmci)",
   "JRubyGraal"            = "JRuby (Graal Core)",
@@ -30,7 +24,7 @@ vm_names <- c(
   "Topaz"                 = "Topaz",
   
   "JRubyTruffle"           = "TruffleRuby (core)",
-  "JRubyTruffleEnterprise" = "TruffleRuby (GraalVM)",
+  "TruffleRuby-HotspotEE-jit" = "TruffleRuby EE 22.0.0.2 Hotspot",
   
   "Java8U66"              = "HotSpot 1.8 292",
   "JavaInt"               = "HotSpot 1.8 292 Int",
@@ -38,23 +32,24 @@ vm_names <- c(
   "Lua53"                 = "Lua 5.3.3",
   "LuaJIT2"               = "LuaJIT 2",
   "MRI23"                 = "MRI 2.5.1",
-  "Node"                  = "Node 14.17",
-  "Node-interp"           = "Node 14.17 Int",
+  "Node"                  = "Node.js 17.5",
+  "Node-jit"              = "Node.js 17.5",
+  "Node-interp"           = "Node.js 17.5 jitless",
   "Pharo"                 = "Pharo",
   "RBX314"                = "Rubinius",
   "SOMns"                 = "SOMns core",
   "SOMns-Enterprise"      = "SOMns GraalVM",
   "SOMnsInt"              = "SOMns int",
   "TruffleSOM"            = "TruffleSOM core",
-  "TruffleSOM-Enterprise" = "TruffleSOM GraalVM",
+  "TruffleSOM-ast-HotspotCE-jit-main" = "TruffleSOM AST Hotspot CE base",
   "TruffleSOM-TOM"        = "TruffleSOM core, Truffle OM",
   "TruffleSOM-TOM-Enterprise" = "TruffleSOM GraalVM, Truffle OM",
-  
+    
   "CPython-interp"        = "CPython 3.10",
   "Cinder-jit"            = "Cinder 3.8",
   "Pyston-jit"            = "Pyston 3.8",
-  "GraalPython-jit"       = "GraalPython 21.1",
-  "PyPy-jit"              = "PyPy 3.7 7.3.4"
+  "GraalPython-HotspotEE-jit"       = "GraalPython EE 22.0.0.2 Hotspot",
+  "PyPy-jit"              = "PyPy 3.8 7.3.7"
   )
 
 vms_all  <- names(vm_names)
@@ -68,17 +63,17 @@ vms_slow <- c("JRubyC2", "JRubyGraal", "JRubyJ8",
               "Pharo", "SOMnsInt", "Topaz")
 vms_fast <- c("Crystal",
               "GraalBasic", "GraalC2", "GraalEnterprise",
-              "GraalJS",
-              "JRubyTruffle", "JRubyTruffleEnterprise",
+              "GraalJS-HotspotEE-jit",
+              "JRubyTruffle", "TruffleRuby-HotspotEE-jit",
               "Java8U66",
               "PyPy-jit",
-              "GraalPython-jit",
-              "Node",
+              "GraalPython-HotspotEE-jit",
+              "Node", "Node-jit",
               "SOMns", "SOMns-Enterprise",
-              "TruffleSOM", "TruffleSOM-TOM", "TruffleSOM-Enterprise", "TruffleSOM-TOM-Enterprise")
-vms_truffle <- c("GraalJS",
-                 "JRubyTruffle", "JRubyTruffleEnterprise",
-                 "TruffleSOM", "TruffleSOM-Enterprise", "TruffleSOM-TOM", "TruffleSOM-TOM-Enterprise",
+              "TruffleSOM", "TruffleSOM-TOM", "TruffleSOM-ast-HotspotCE-jit-main", "TruffleSOM-TOM-Enterprise")
+vms_truffle <- c("GraalJS-HotspotEE-jit",
+                 "JRubyTruffle", "TruffleRuby-HotspotEE-jit",
+                 "TruffleSOM", "TruffleSOM-ast-HotspotCE-jit-main", "TruffleSOM-TOM", "TruffleSOM-TOM-Enterprise",
                  "SOMns", "SOMns-Enterprise")
 
 assert_that(all(sort(c(vms_slow, vms_fast)) == sort(vms_all))) ## sanity check
@@ -111,7 +106,7 @@ data <- rbind(data_fast_vms, data_slow_vms, data_very_slow_vms) %>%
 
 
 base <- data %>%
-  filter(exe == "Java8U66") %>%
+  filter(exe == "Node-jit") %>% #name of the baseline
   group_by(bench,
            varvalue, cores, inputsize, extraargs) %>%
   summarise(base_mean = mean(value),
@@ -218,9 +213,7 @@ plot_benchmarks_speedup_for_vms <- function(
 }
 
 overview_box_plot <- function(stats, vms, prepare_data = NULL, pre_plot = NULL, new_colors = FALSE) {
-  # stats <- stats_latest
-  # vms <- c("Node", "Pharo", "JavaInt", 
-  #          "Lua53", "LuaJIT2", "SOMns-Enterprise")
+#  stats <- stats_latest
 
   vm_stats <- stats %>%
     filter(exe %in% vms)
@@ -246,28 +239,14 @@ overview_box_plot <- function(stats, vms, prepare_data = NULL, pre_plot = NULL, 
   }
   plot <- plot +
     geom_boxplot(outlier.size = 0.5) + #fill=get_color(5, 7)
-    theme_bw() + theme_simple(font_size = 8) +
+    theme_bw() + theme_simple(font_size = 9) +
     theme(axis.text.x = element_text(angle= 90, vjust=0.5, hjust=1), legend.position="none") +
     #scale_y_log10(breaks=c(1,2,3,10,20,30,50,100,200,300,500,1000)) + #limit=c(0,30), breaks=seq(0,100,5), expand = c(0,0)
-    ggtitle("Runtime Factor, normalized to Java\n(lower is better)") + coord_flip() + xlab("") +
+    ggtitle("Runtime Factor, normalized to Node.js\n(lower is better)") + coord_flip() + xlab("") +
     scale_fill_manual(values = col_values)
   plot
 }
-```
 
-All results are normalized to Java 1.8.0_292. Furthermore, we report afer 
-some warmup. This means, the reported measurements are taken after `r warmup_slow` or `r warmup_fast` warmup iterations.
-
-## Overview
-
-##### Fast Language Implementations
-
-The following set of language implementations reaches the performance of Java on
-our set of benchmarks within a factor of 2 to 3 on average. To allow for a more
-detailed assessment of these *fast* language implementations, we exclude slower
-ones from the following plot.
-
-```{r fast-langs-overview, fig.width=15, fig.height=6}
 # overview_box_plot(stats_latest,
 #                   c("Node", "Pharo", "JavaInt", "Java8U66", "MRI23", "Lua53", "LuaJIT2", "SOMns-Enterprise"), new_colors = TRUE)
 p <- overview_box_plot(stats_latest, vms_fast, pre_plot = function (p) {
@@ -275,33 +254,14 @@ p <- overview_box_plot(stats_latest, vms_fast, pre_plot = function (p) {
       geom_hline(aes(yintercept=2), colour="#cccccc", linetype="dashed") +
       geom_hline(aes(yintercept=3), colour="#cccccc", linetype="dashed") })
 p + scale_y_continuous(limit=c(0,13), breaks = c(1, 2, 3, 4, 6, 8, 10, 12))
-```
 
-##### All Language Implementations
-
-Other language implementations are not necessarily reaching performance similar
-to Java on our benchmarks. The following plot include all of the
-implementations.
-
-```{r all-langs-overview, fig.width=8, fig.height=10}
-p <- overview_box_plot(stats_latest, vms_all)
+#p <- overview_box_plot(stats_latest, vms_all)
+p <- overview_box_plot(stats_latest, c("Node-jit", "PyPy-jit", "GraalJS-HotspotEE-jit", "TruffleRuby-HotspotEE-jit", "GraalPython-HotspotEE-jit", "TruffleSOM-ast-HotspotCE-jit-main"))
 p + scale_y_continuous(breaks = c(0, 5, seq(from=10, by=10, to=100)))
-```
 
-###### Ruby Performance
-
-```{r ruby-overview, fig.width=8, fig.height=6}
 p <- overview_box_plot(stats_latest, c("Crystal", "Java8U66", "RBX314", "Topaz", "MRU23", "JRubyC2", "JRubyTruffleEnterprise", "Pharo"))
 p + scale_y_continuous(breaks = c(0, 5, seq(from=10, by=10, to=100)))
-```
 
-##### Performance Overview Data
-<a id="data-table"></a>
-
-The following table contains the numerical representation of the results
-depicted above.
-
-```{r truffle-lang-table, results='asis', echo=FALSE}
 vm_stats <- stats_vm_latest
 suppressMessages(vm_stats$exe <- revalue(vm_stats$exe, vm_names))
 vm_stats$exe <- reorder(vm_stats$exe, X=vm_stats$median_ratio)
@@ -311,31 +271,11 @@ t <- tabular(Justify("l")*Heading()*exe ~
              Heading('Runtime Factor over Java')*Justify("r")*Format(sprintf("%.2f"))*((median_ratio + min_ratio + max_ratio)*Heading()*identity), data=vm_stats)
 table_options(justification="c ")
 html.tabular(t)
-```
 
-## Details for all Benchmarks
-<a id="all-benchmarks"></a>
-
-The following plots show results for each of the benchmarks.
-
-##### Fast Language Implementations
-
-```{r fast-langs-benchmarks, fig.width=6, fig.height=3}
 plot_benchmarks_speedup_for_vms(norm_latest, vms_fast)
-```
 
-##### Slow Language Implementations
-
-```{r slow-langs-benchmarks, fig.width=6, fig.height=4}
 plot_benchmarks_speedup_for_vms(norm_latest, vms_slow)
-```
 
-##### Benchmark Results
-<a id="benchmark-table"></a>
-
-The following table contains the numerical results for all benchmarks.
-
-```{r benchmark-table, results='asis', echo=FALSE}
 t_stats <- stats_latest
 suppressMessages(t_stats$exe <- revalue(t_stats$exe, vm_names))
 t_stats$exe <- reorder(t_stats$exe, X=t_stats$vm_ratio)
@@ -349,4 +289,3 @@ t <- tabular(Justify("l")*Heading()*bench*exe ~
                # + Heading("median")*RR.median
                )*Heading()*show_plain), data=t_stats)
 html.tabular(t)
-```
