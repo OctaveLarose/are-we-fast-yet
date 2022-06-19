@@ -20,7 +20,7 @@ clobber: clean
 	rm -Rf data/benchmark.data
 
 upload: all
-	scp overview.html ts:www-truffle/are-we-fast-yet.html
+#	scp overview.html ts:www-truffle/are-we-fast-yet.html
 	echo "Report Available at http://stefan-marr.de/downloads/truffle/are-we-fast-yet.html"
 
 docs: overview.html
