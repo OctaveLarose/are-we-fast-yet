@@ -242,7 +242,8 @@ overview_box_plot <- function(stats, vms, prepare_data = NULL, pre_plot = NULL, 
     theme_bw() + theme_simple(font_size = 9) +
     theme(axis.text.x = element_text(angle= 90, vjust=0.5, hjust=1), legend.position="none") +
     #scale_y_log10(breaks=c(1,2,3,10,20,30,50,100,200,300,500,1000)) + #limit=c(0,30), breaks=seq(0,100,5), expand = c(0,0)
-    ggtitle("Runtime Factor, normalized to Node.js\n(lower is better)") + coord_flip() + xlab("") +
+    #ggtitle("Runtime Factor, normalized to Node.js\n(lower is better)") + 
+    coord_flip() + xlab("") +
     scale_fill_manual(values = col_values)
   plot
 }
@@ -257,35 +258,36 @@ p + scale_y_continuous(limit=c(0,13), breaks = c(1, 2, 3, 4, 6, 8, 10, 12))
 
 #p <- overview_box_plot(stats_latest, vms_all)
 p <- overview_box_plot(stats_latest, c("Node-jit", "PyPy-jit", "GraalJS-HotspotEE-jit", "TruffleRuby-HotspotEE-jit", "GraalPython-HotspotEE-jit", "TruffleSOM-ast-HotspotCE-jit-main"))
-p + scale_y_continuous(breaks = c(0, 5, seq(from=10, by=10, to=100)))
+p + scale_y_continuous(breaks = c(0, 5, seq(from=0, by=1, to=10)))
 
-p <- overview_box_plot(stats_latest, c("Crystal", "Java8U66", "RBX314", "Topaz", "MRU23", "JRubyC2", "JRubyTruffleEnterprise", "Pharo"))
-p + scale_y_continuous(breaks = c(0, 5, seq(from=10, by=10, to=100)))
-
-vm_stats <- stats_vm_latest
-suppressMessages(vm_stats$exe <- revalue(vm_stats$exe, vm_names))
-vm_stats$exe <- reorder(vm_stats$exe, X=vm_stats$median_ratio)
+# p <- overview_box_plot(stats_latest, c("Crystal", "Java8U66", "RBX314", "Topaz", "MRU23", "JRubyC2", "JRubyTruffleEnterprise", "Pharo"))
+# p + scale_y_continuous(breaks = c(0, 5, seq(from=10, by=10, to=100)))
 
 
-t <- tabular(Justify("l")*Heading()*exe ~
-             Heading('Runtime Factor over Java')*Justify("r")*Format(sprintf("%.2f"))*((median_ratio + min_ratio + max_ratio)*Heading()*identity), data=vm_stats)
-table_options(justification="c ")
-html.tabular(t)
-
-plot_benchmarks_speedup_for_vms(norm_latest, vms_fast)
-
-plot_benchmarks_speedup_for_vms(norm_latest, vms_slow)
-
-t_stats <- stats_latest
-suppressMessages(t_stats$exe <- revalue(t_stats$exe, vm_names))
-t_stats$exe <- reorder(t_stats$exe, X=t_stats$vm_ratio)
-
-show_plain <- mean ## this is silly, but works better than the identity for missing values
-
-t <- tabular(Justify("l")*Heading()*bench*exe ~
-             Heading('Runtime Factor over Java')*Justify("r")*Format(sprintf("%.2f"))*((
-                 Heading("mean")*ratio
-               # + Heading("sd")*RR.sd
-               # + Heading("median")*RR.median
-               )*Heading()*show_plain), data=t_stats)
-html.tabular(t)
+# vm_stats <- stats_vm_latest
+# suppressMessages(vm_stats$exe <- revalue(vm_stats$exe, vm_names))
+# vm_stats$exe <- reorder(vm_stats$exe, X=vm_stats$median_ratio)
+# 
+# 
+# t <- tabular(Justify("l")*Heading()*exe ~
+#              Heading('Runtime Factor over Java')*Justify("r")*Format(sprintf("%.2f"))*((median_ratio + min_ratio + max_ratio)*Heading()*identity), data=vm_stats)
+# table_options(justification="c ")
+# html.tabular(t)
+# 
+# plot_benchmarks_speedup_for_vms(norm_latest, vms_fast)
+# 
+# plot_benchmarks_speedup_for_vms(norm_latest, vms_slow)
+# 
+# t_stats <- stats_latest
+# suppressMessages(t_stats$exe <- revalue(t_stats$exe, vm_names))
+# t_stats$exe <- reorder(t_stats$exe, X=t_stats$vm_ratio)
+# 
+# show_plain <- mean ## this is silly, but works better than the identity for missing values
+# 
+# t <- tabular(Justify("l")*Heading()*bench*exe ~
+#              Heading('Runtime Factor over Java')*Justify("r")*Format(sprintf("%.2f"))*((
+#                  Heading("mean")*ratio
+#                # + Heading("sd")*RR.sd
+#                # + Heading("median")*RR.median
+#                )*Heading()*show_plain), data=t_stats)
+# html.tabular(t)
