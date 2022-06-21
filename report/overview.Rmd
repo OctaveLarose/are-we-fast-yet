@@ -34,7 +34,7 @@ vm_names <- c(
   "MRI23"                 = "MRI 2.5.1",
   "Node"                  = "Node.js 17.5",
   "Node-jit"              = "Node.js 17.5",
-  "Node-interp"           = "Node.js 17.5 jitless",
+  "Node-int"           = "Node.js 17.5 jitless",
   "Pharo"                 = "Pharo",
   "RBX314"                = "Rubinius",
   "SOMns"                 = "SOMns core",
@@ -44,8 +44,16 @@ vm_names <- c(
   "TruffleSOM-ast-HotspotCE-jit-main" = "TruffleSOM AST Hotspot CE base",
   "TruffleSOM-TOM"        = "TruffleSOM core, Truffle OM",
   "TruffleSOM-TOM-Enterprise" = "TruffleSOM GraalVM, Truffle OM",
+  
+  "TruffleSOM-ast-NativeEE-int-super" = "TruffleSOM AST Native Int EE super", 
+  "TruffleSOM-ast-NativeEE-int-main" = "TruffleSOM AST Native Int EE base", 
+  "GraalJS-NativeEE-int" = "GraalJS EE 22.0.0.2 Native Int",
+  "TruffleRuby-NativeEE-int" = "TruffleRuby EE 22.0.0.2 Native Int",
     
-  "CPython-interp"        = "CPython 3.10",
+  "GraalPython-NativeEE-int" = "GraalPython EE 22.0.0.2 Native Int",
+  
+  "CPython-int"        = "CPython 3.10",
+  "CRuby-int" = "Ruby 3.1.0",
   "Cinder-jit"            = "Cinder 3.8",
   "Pyston-jit"            = "Pyston 3.8",
   "GraalPython-HotspotEE-jit"       = "GraalPython EE 22.0.0.2 Hotspot",
@@ -57,10 +65,12 @@ vms_slow <- c("JRubyC2", "JRubyGraal", "JRubyJ8",
               "JavaInt",
               "Lua53", "LuaJIT2",
               "MRI23", "RBX314",
-              "CPython-interp",
-              "Node-interp",
+              "CRuby-int",
+              "CPython-int",
+              "Node-int",
               "Pyston-jit", "Cinder-jit",
-              "Pharo", "SOMnsInt", "Topaz")
+              "Pharo", "SOMnsInt", "Topaz",  "TruffleSOM-ast-NativeEE-int-super",  "TruffleSOM-ast-NativeEE-int-main",
+              "GraalPython-NativeEE-int", "TruffleRuby-NativeEE-int", "GraalJS-NativeEE-int")
 vms_fast <- c("Crystal",
               "GraalBasic", "GraalC2", "GraalEnterprise",
               "GraalJS-HotspotEE-jit",
@@ -106,7 +116,7 @@ data <- rbind(data_fast_vms, data_slow_vms, data_very_slow_vms) %>%
 
 
 base <- data %>%
-  filter(exe == "Node-jit") %>% #name of the baseline
+  filter(exe == "Node-int") %>% #name of the baseline
   group_by(bench,
            varvalue, cores, inputsize, extraargs) %>%
   summarise(base_mean = mean(value),
@@ -237,6 +247,13 @@ overview_box_plot <- function(stats, vms, prepare_data = NULL, pre_plot = NULL, 
   if (!is.null(pre_plot)) {
     plot <- pre_plot(plot)
   }
+  plot <- plot + geom_hline(aes(yintercept=1), colour="#cccccc", linetype="dashed")
+  plot <- plot + geom_hline(aes(yintercept=2), colour="#cccccc", linetype="dashed")
+  plot <- plot + geom_hline(aes(yintercept=3), colour="#cccccc", linetype="dashed")
+  plot <- plot + geom_hline(aes(yintercept=5), colour="#cccccc", linetype="dashed")
+  plot <- plot + geom_hline(aes(yintercept=10), colour="#cccccc", linetype="dashed")
+  plot <- plot + geom_hline(aes(yintercept=20), colour="#cccccc", linetype="dashed")
+  
   plot <- plot +
     geom_boxplot(outlier.size = 0.5) + #fill=get_color(5, 7)
     theme_bw() + theme_simple(font_size = 9) +
@@ -254,15 +271,19 @@ p <- overview_box_plot(stats_latest, vms_fast, pre_plot = function (p) {
   p + geom_hline(aes(yintercept=1), colour="#cccccc", linetype="dashed") +
       geom_hline(aes(yintercept=2), colour="#cccccc", linetype="dashed") +
       geom_hline(aes(yintercept=3), colour="#cccccc", linetype="dashed") })
-p + scale_y_continuous(limit=c(0,13), breaks = c(1, 2, 3, 4, 6, 8, 10, 12))
+p + scale_y_continuous(breaks = c(1, 2, 3, 4, 6, 8, 10, 12))
 
 #p <- overview_box_plot(stats_latest, vms_all)
 p <- overview_box_plot(stats_latest, c("Node-jit", "PyPy-jit", "GraalJS-HotspotEE-jit", "TruffleRuby-HotspotEE-jit", "GraalPython-HotspotEE-jit", "TruffleSOM-ast-HotspotCE-jit-main"))
-p + scale_y_continuous(breaks = c(0, 5, seq(from=0, by=1, to=10)))
+p <- p + geom_hline(aes(yintercept=1), colour="#cccccc", linetype="dashed")
+p <- p + scale_y_continuous(breaks = c(0, 5, seq(from=0, by=1, to=10)))
+p
 
-# p <- overview_box_plot(stats_latest, c("Crystal", "Java8U66", "RBX314", "Topaz", "MRU23", "JRubyC2", "JRubyTruffleEnterprise", "Pharo"))
-# p + scale_y_continuous(breaks = c(0, 5, seq(from=10, by=10, to=100)))
-
+p <- overview_box_plot(stats_latest, c("Node-int", "CRuby-int", "CPython-int", "TruffleSOM-ast-NativeEE-int-super", 
+                                       "TruffleSOM-ast-NativeEE-int-main", "GraalJS-NativeEE-int",
+                                       "TruffleRuby-NativeEE-int", "GraalPython-NativeEE-int"), new_colors = TRUE)
+p <- p + scale_y_continuous(breaks = c(1, 2, 3, 5, 10, 20))
+p
 
 # vm_stats <- stats_vm_latest
 # suppressMessages(vm_stats$exe <- revalue(vm_stats$exe, vm_names))
