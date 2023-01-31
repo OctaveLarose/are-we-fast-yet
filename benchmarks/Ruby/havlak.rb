@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # Adapted based on SOM benchmark.
 # Copyright 2011 Google Inc.
 #
@@ -12,6 +14,8 @@
 #     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #     See the License for the specific language governing permissions and
 #         limitations under the License.
+
+require_relative 'benchmark'
 require_relative 'som'
 
 class Havlak < Benchmark

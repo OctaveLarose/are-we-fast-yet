@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # Adapted based on SOM benchmark.
 #
 # Copyright (C) 2004-2013 Brent Fulgham
@@ -41,6 +43,8 @@
 
 # http://benchmarksgame.alioth.debian.org/u64q/program.php?test=mandelbrot&lang=yarv&id=3
 
+require_relative 'benchmark'
+
 class Mandelbrot < Benchmark
   def inner_benchmark_loop(inner_iterations)
     verify_result(mandelbrot(inner_iterations), inner_iterations)
@@ -66,7 +70,7 @@ class Mandelbrot < Benchmark
       x  = 0
 
       while x < size
-        zrzr = zr = 0.0
+        zrzr = 0.0
         zizi = zi = 0.0
         cr   = (2.0 * x / size) - 1.5
 

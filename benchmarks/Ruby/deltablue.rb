@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # The benchmark in its current state is a derivation from the SOM version,
 # which is derived from Mario Wolczko's Smalltalk version of DeltaBlue.
 #
@@ -28,6 +30,8 @@
 # the layout & logic from the original. (Ugh.)
 #
 # .. _`V8's source code`: (http://code.google.com/p/v8/source/browse/branches/bleeding_edge/benchmarks/deltablue.js)
+
+require_relative 'benchmark'
 require_relative 'som'
 
 class DeltaBlue < Benchmark

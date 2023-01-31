@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # The benchmark in its current state is a derivation from the SOM version,
 # which is derived from Mario Wolczko's Smalltalk version of DeltaBlue.
 #
@@ -10,6 +12,8 @@
 #
 # Derived from http://pws.prserv.net/dlissett/ben/bench1.htm
 # Licensed CC BY-NC-SA 1.0
+
+require_relative 'benchmark'
 
 NO_TASK = nil
 NO_WORK = nil
@@ -356,24 +360,12 @@ class TaskState < RBObject
     self
   end
 
-  def is_running
-    !@packet_pending && !@task_waiting && !@task_holding
-  end
-
   def is_task_holding_or_waiting
     @task_holding || (!@packet_pending && @task_waiting)
   end
 
-  def is_waiting
-    !@packet_pending && @task_waiting && !@task_holding
-  end
-
   def is_waiting_with_packet
     @packet_pending && @task_waiting && !@task_holding
-  end
-
-  def self.packet_pending
-    new.packet_pending
   end
 
   def self.running

@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-# This code is derived from the SOM benchmarks, see AUTHORS.md file.
-#
 # Copyright (c) 2015-2016 Stefan Marr <git@stefan-marr.de>
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -22,32 +20,20 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
-require_relative 'benchmark'
-require_relative 'som'
-
-class Storage < Benchmark
-  def initialize
-    @count = 0
+class Benchmark
+  def inner_benchmark_loop(inner_iterations)
+    inner_iterations.times do
+      return false unless verify_result(benchmark)
+    end
+    true
   end
 
   def benchmark
-    random = Random.new
-    @count = 0
-    build_tree_depth(7, random)
-    @count
+    raise 'subclass_responsibility'
   end
 
-  def verify_result(result)
-    5461 == result
-  end
-
-  def build_tree_depth(depth, random)
-    @count += 1
-
-    if depth == 1
-      Array.new(random.next % 10 + 1)
-    else
-      Array.new(4) { build_tree_depth(depth - 1, random) }
-    end
+  # noinspection RubyUnusedLocalVariable
+  def verify_result(_result)
+    raise 'subclass_responsibility'
   end
 end

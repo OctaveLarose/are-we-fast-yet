@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # Ported from the adapted JavaScript and Java versions.
 #
 #     Copyright (c) 2001-2010, Purdue University. All rights reserved.
@@ -24,6 +26,8 @@
 # ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+require_relative 'benchmark'
 require_relative 'som'
 
 ## PREFER == nil over .nil?
