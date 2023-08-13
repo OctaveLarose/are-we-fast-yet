@@ -17,30 +17,38 @@ if (Sys.getenv("USER") == "smarr") {
 }
 
 source("scripts/libraries.R", chdir=TRUE)
-data <- rbind(
-  # main run, one invocation of everything
-  load_data_url("https://rebench.stefan-marr.de/rebenchdb/get-exp-data/1518"),
-  # another run, adding JDK8
-  load_data_url("https://rebench.stefan-marr.de/rebenchdb/get-exp-data/1523")) %>%
-  factorize_result()
+
+#data <- rbind(
+#  load_data_url("https://rebench.stefan-marr.de/TruffleSOM/data/2867"), # tsom
+#  load_data_url("https://rebench.stefan-marr.de/TruffleSOM/data/2851") # pysom
+#) %>% 
+#  subset(!(exe %in% c("TruffleSOM-native-interp-ast", "TruffleSOM-native-interp-bc", "RPySOM-bc-interp", "RPySOM-ast-interp"))) %>%
+#  subset(iteration <= 500)
 
 data <- rbind(
-  load_data_url("https://rebench.stefan-marr.de/TruffleSOM/data/2867"), # tsom
-  load_data_url("https://rebench.stefan-marr.de/TruffleSOM/data/2851") # pysom
+  load_data_url("https://rebench.stefan-marr.de/Are-We-Fast-Yet/data/3048"), # all jit data
+  load_data_url("https://rebench.stefan-marr.de/TruffleSOM/data/2867"), # older data with Native runs except Havlak and CD
+  load_data_url("https://rebench.stefan-marr.de/TruffleSOM/data/3190") # Havlak and CD on Native
 ) %>% 
-  subset(!(exe %in% c("TruffleSOM-native-interp-ast", "TruffleSOM-native-interp-bc", "RPySOM-bc-interp", "RPySOM-ast-interp"))) %>%
+  subset(!(exe %in% c("TruffleSOM-native-interp-ast", "TruffleSOM-native-interp-bc", "RPySOM-bc-interp", "RPySOM-ast-interp", "Java20-C2-jit", "Node-jit"))) %>%
   subset(iteration <= 500)
 
+
 data <- data[!(data$exe %in% c("RPySOM-bc-jit", "RPySOM-ast-jit") & data$suite %in% c("macro-startup", "micro-startup")),] # those were ran by mistake
+
+data$exe <- as.character(data$exe)
+data$exe[data$exe == "TruffleSOM-ast-HotspotCE-jit"] <- "TruffleSOM-graal-ast"
+data$exe[data$exe == "TruffleSOM-bc-HotspotCE-jit"] <- "TruffleSOM-graal-bc"
+data$exe[data$exe == "TruffleSOM-graal"] <- "TruffleSOM-graal-ast"
 
 # summary(data)
 # dput(levels(data$bench))
 # dput(levels(data$exe))
 
 sorted_benchmarks <- c(
-  "DeltaBlue", "Json", "NBody", "Richards", 
-  "Bounce", "List", "Mandelbrot", "Permute",
-  "Queens", "Sieve", "Storage", "Towers"
+  "Bounce", "CD", "DeltaBlue", "Havlak", "Json",
+  "List", "Mandelbrot", "NBody", "Permute",
+  "Queens", "Richards", "Sieve", "Storage", "Towers"
 )
 
 sorted_exe <- c(
@@ -145,22 +153,22 @@ get_warmup_plots <- function(data, baseline_name, y_lab, dont_rename = FALSE) {
   plots
 }
 
-plot_all <- get_warmup_plots(all_data, "TruffleSOM-graal-ast", expression(Normalized~to~median(TSOM[AST])), TRUE) # "Java-C2-jit")
+#plot_all <- get_warmup_plots(all_data, "TruffleSOM-graal-ast", expression(Normalized~to~median(TSOM[AST])), TRUE) # "Java-C2-jit")
 
 # graal_data <- rbind(all_data %>% filter(exe %in% c("TruffleSOM-graal-ast", "TruffleSOM-graal-bc")), data_java)
-graal_data <- all_data %>% filter(exe %in% c("TruffleSOM-graal-ast", "TruffleSOM-graal-bc"))
-plot_graal <- get_warmup_plots(graal_data, "TruffleSOM-graal-ast", expression(Normalized~to~median(TSOM[AST]))) # "Java-C2-jit")
+#graal_data <- all_data %>% filter(exe %in% c("TruffleSOM-graal-ast", "TruffleSOM-graal-bc"))
+#plot_graal <- get_warmup_plots(graal_data, "TruffleSOM-graal-ast", expression(Normalized~to~median(TSOM[AST]))) # "Java-C2-jit")
 
-# native_image_data <- rbind(all_data %>% filter(exe %in% c("TruffleSOM-native-ast", "TruffleSOM-native-bc")), data_java)
+#native_image_data <- rbind(all_data %>% filter(exe %in% c("TruffleSOM-native-ast", "TruffleSOM-native-bc")), data_java)
 native_image_data <- all_data %>% filter(exe %in% c("TruffleSOM-native-ast", "TruffleSOM-native-bc"))
 plot_native <- get_warmup_plots(native_image_data, "TruffleSOM-native-ast", expression(Normalized~to~median(TSOM[AST]))) # "Java-C2-jit")
 
-# pysom_data <- rbind(all_data %>% filter(exe %in% c("RPySOM-ast-jit", "RPySOM-bc-jit")), data_java)
-pysom_data <- all_data %>% filter(exe %in% c("RPySOM-ast-jit", "RPySOM-bc-jit"))
-plot_pysom <- get_warmup_plots(pysom_data, "RPySOM-ast-jit", expression(Normalized~to~median(PySOM[AST]))) # "Java-C2-jit")
+#pysom_data <- rbind(all_data %>% filter(exe %in% c("RPySOM-ast-jit", "RPySOM-bc-jit")), data_java)
+pysom_data <- all_data %>% filter(exe %in% c("PySOM-ast-jit", "PySOM-bc-jit"))
+plot_pysom <- get_warmup_plots(pysom_data, "PySOM-ast-jit", expression(Normalized~to~median(PySOM[AST]))) # "Java-C2-jit")
 
-print(plot_all)
-print(plot_graal)
+#print(plot_all)
+#print(plot_graal)
 print(plot_native)
 print(plot_pysom)
 
@@ -168,7 +176,7 @@ OUTPUT_WIDTH <- 5.5
 OUTPUT_HEIGHT <- 3.3
 output_folder <- "../../../paper/images/"
 
-ggsave(plot_graal, device= cairo_pdf, path=".", filename=paste0(output_folder, "warmup_graal.pdf"), dpi=300, height=OUTPUT_HEIGHT, width=OUTPUT_WIDTH, units="in", family="Arial")
+#ggsave(plot_graal, device= cairo_pdf, path=".", filename=paste0(output_folder, "warmup_graal.pdf"), dpi=300, height=OUTPUT_HEIGHT, width=OUTPUT_WIDTH, units="in", family="Arial")
 ggsave(plot_native, device= cairo_pdf, path=".", filename=paste0(output_folder, "warmup_native.pdf"), dpi=300, height=OUTPUT_HEIGHT, width=OUTPUT_WIDTH, units="in", family="Arial")
 ggsave(plot_pysom, device= cairo_pdf, path=".", filename=paste0(output_folder, "warmup_pysom.pdf"), dpi=300, height=OUTPUT_HEIGHT, width=OUTPUT_WIDTH, units="in", family="Arial")
 ```
