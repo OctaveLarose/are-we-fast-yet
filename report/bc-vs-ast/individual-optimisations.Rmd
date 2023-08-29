@@ -19,6 +19,7 @@ OPTIM_GRAPH_WIDTH <- 2.6
 MIN_JIT_ITERATION <- 0
 
 compute_stats <- function(data, exe_name, iteration_threshold = 0, baseline_optim="all optimizations") {
+  # data <- data_optim_tsom_ast; exe_name <- "TruffleSOM-native-interp-ast"
   # compute_stats(data_optim_pysom_ast, "RPySOM-ast-interp")
   # data <- data_optim_pysom_ast
   # exe_name <- "RPySOM-ast-interp"
@@ -181,7 +182,9 @@ get_and_format_new_data <- function(data) {
   data$exe[data$exe == "TruffleSOM-ast-HotspotCE-jit"] <- "TruffleSOM-graal"
   data$exe[data$exe == "TruffleSOM-bc-HotspotCE-jit"] <- "TruffleSOM-graal-bc"
   data$exe[data$exe == "TruffleSOM-ast-NativeCE-int"] <- "TruffleSOM-native-interp-ast"
+  data$exe[data$exe == "TruffleSOM-ast-NativeCE-int-astvsbc"] <- "TruffleSOM-native-interp-ast"
   data$exe[data$exe == "TruffleSOM-bc-NativeCE-int"] <- "TruffleSOM-native-interp-bc"
+  data$exe[data$exe == "TruffleSOM-bc-NativeCE-int-astvsbc"] <- "TruffleSOM-native-interp-bc"
   data$exe[data$exe == "PySOM-ast-int"] <- "RPySOM-ast-interp"
   data$exe[data$exe == "PySOM-bc-int"] <- "RPySOM-bc-interp"
   data$exe[data$exe == "PySOM-ast-jit"] <- "RPySOM-ast-jit"
