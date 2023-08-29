@@ -27,7 +27,8 @@ compute_stats <- function(data, exe_name, iteration_threshold = 0, baseline_opti
   # and keep only the exe we are interested in
   data <- data |>
     select(!c(commitid, suite, cmdline, varvalue, cores, expid, runid, trialid, envid, inputsize, extraargs, warmup, invocation)) |>
-    filter(exe == exe_name)
+    filter(exe == exe_name) |>
+    droplevels()
   
   # then selected the "warmed up data"
   jit_exe_vals <- c("RPySOM-bc-jit", "RPySOM-ast-jit", "TruffleSOM-graal", "TruffleSOM-graal-bc")
@@ -65,6 +66,8 @@ compute_stats <- function(data, exe_name, iteration_threshold = 0, baseline_opti
       unit = unit[1],
       median_ratio = median(ratio),
       .groups = "drop")
+  per_bench$optim <- factor(per_bench$optim)
+  per_bench$exe <- factor(per_bench$exe)
   
   # now get the overall stats
   # the min, max, and median, each corresponding to exactly one benchmark
@@ -172,6 +175,8 @@ get_and_format_new_data <- function(data) {
   data$optim[data$optim == "superinstructions"] <- "superinstructions (*)"
   data$optim[data$optim == "supernodes"] <- "supernodes (*)"
   
+  data$optim <- factor(data$optim)
+  
   # renaming exes
   data$exe[data$exe == "TruffleSOM-ast-HotspotCE-jit"] <- "TruffleSOM-graal"
   data$exe[data$exe == "TruffleSOM-bc-HotspotCE-jit"] <- "TruffleSOM-graal-bc"
@@ -181,6 +186,8 @@ get_and_format_new_data <- function(data) {
   data$exe[data$exe == "PySOM-bc-int"] <- "RPySOM-bc-interp"
   data$exe[data$exe == "PySOM-ast-jit"] <- "RPySOM-ast-jit"
   data$exe[data$exe == "PySOM-bc-jit"] <- "RPySOM-bc-jit"
+  
+  data$exe <- factor(data$exe)
   data
 }
 
