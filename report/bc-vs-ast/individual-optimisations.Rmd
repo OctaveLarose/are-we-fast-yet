@@ -221,12 +221,22 @@ unique_optims <- unique(all_optims$optim)
 
 color_set_opti <- c('#081d58', '#AADC32FF','#472D7BFF','#3B528BFF','#FDE725FF','#440154FF','#1d91c0','#238b45','#ec7014')
 color_set_optims <- set_color_bindings_for_plots(unique_optims, color_set_opti)
+
+assert_that_all_optimizations_have_all_benchmarks <- function(box_plot_data) {
+  for (o in levels(box_plot_data$optim)) {
+    a <- box_plot_data |>
+      filter(optim == o) |>
+      droplevels()
+    assert_that(length(levels(a$bench)) == 14)
+  }
+}
 ```
 
 ### TruffleSOM - AST interp
 
 ```{r optim-tsom-ast-int, fig.width=8, fig.height=2.2, echo=FALSE}
 box_plot_data <- get_data_for_box_plot_optim(data_optim_tsom_ast, "TruffleSOM-native-interp-ast")
+assert_that_all_optimizations_have_all_benchmarks(box_plot_data)
 
 plot <- box_plot_optim(box_plot_data)
 ggsave(plot, device= cairo_pdf, path=".", filename=output_folder_path("optim-tsom-ast-int.pdf"), dpi=300, height=OPTIM_GRAPH_HEIGHT, width=OPTIM_GRAPH_WIDTH, units="in", family="Arial")
@@ -237,6 +247,7 @@ plot
 
 ```{r optim-pysom-ast-int, fig.width=8, fig.height=2.2, echo=FALSE}
 box_plot_data <- get_data_for_box_plot_optim(data_optim_pysom_ast, "RPySOM-ast-interp")
+assert_that_all_optimizations_have_all_benchmarks(box_plot_data)
 
 plot <- box_plot_optim(box_plot_data)
 ggsave(plot, device= cairo_pdf, path=".", filename=output_folder_path("optim-pysom-ast-int.pdf"), dpi=300, height=OPTIM_GRAPH_HEIGHT, width=OPTIM_GRAPH_WIDTH, units="in", family="Arial")
@@ -247,6 +258,7 @@ plot
 
 ```{r optim-tsom-ast-jit, fig.width=8, fig.height=2.2, echo=FALSE}
 box_plot_data <- get_data_for_box_plot_optim(data_optim_tsom_ast, "TruffleSOM-graal")
+assert_that_all_optimizations_have_all_benchmarks(box_plot_data)
 
 plot <- box_plot_optim(box_plot_data)
 ggsave(plot, device= cairo_pdf, path=".", filename=output_folder_path("optim-tsom-ast-jit.pdf"), dpi=300, height=OPTIM_GRAPH_HEIGHT, width=OPTIM_GRAPH_WIDTH, units="in", family="Arial")
@@ -257,6 +269,7 @@ plot
 
 ```{r optim-pysom-ast-jit, fig.width=8, fig.height=2.2, echo=FALSE}
 box_plot_data <- get_data_for_box_plot_optim(data_optim_pysom_ast, "RPySOM-ast-jit")
+assert_that_all_optimizations_have_all_benchmarks(box_plot_data)
 
 plot <- box_plot_optim(box_plot_data)
 ggsave(plot, device= cairo_pdf, path=".", filename=output_folder_path("optim-pysom-ast-jit.pdf"), dpi=300, height=OPTIM_GRAPH_HEIGHT, width=OPTIM_GRAPH_WIDTH, units="in", family="Arial")
@@ -269,6 +282,7 @@ plot
 
 ```{r optim-tsom-bc-interp, fig.width=8, fig.height=2.2, echo=FALSE}
 box_plot_data <- get_data_for_box_plot_optim(data_optim_tsom_bc, "TruffleSOM-native-interp-bc")
+assert_that_all_optimizations_have_all_benchmarks(box_plot_data)
 
 plot <- box_plot_optim(box_plot_data)
 ggsave(plot, device= cairo_pdf, path=".", filename=output_folder_path("optim-tsom-bc-int.pdf"), dpi=300, height=OPTIM_GRAPH_HEIGHT, width=OPTIM_GRAPH_WIDTH, units="in", family="Arial")
@@ -279,6 +293,7 @@ plot
 
 ```{r optim-pysom-bc-interp, fig.width=8, fig.height=2.2, echo=FALSE}
 box_plot_data <- get_data_for_box_plot_optim(data_optim_pysom_bc, "RPySOM-bc-interp")
+assert_that_all_optimizations_have_all_benchmarks(box_plot_data)
 
 plot <- box_plot_optim(box_plot_data)
 ggsave(plot, device= cairo_pdf, path=".", filename=output_folder_path("optim-pysom-bc-int.pdf"), dpi=300, height=OPTIM_GRAPH_HEIGHT, width=OPTIM_GRAPH_WIDTH, units="in", family="Arial")
@@ -289,6 +304,7 @@ plot
 
 ```{r optim-tsom-bc-jit, fig.width=8, fig.height=2.2, echo=FALSE}
 box_plot_data <- get_data_for_box_plot_optim(data_optim_tsom_bc, "TruffleSOM-graal-bc")
+assert_that_all_optimizations_have_all_benchmarks(box_plot_data)
 
 plot <- box_plot_optim(box_plot_data)
 ggsave(plot, device= cairo_pdf, path=".", filename=output_folder_path("optim-tsom-bc-jit.pdf"), dpi=300, height=OPTIM_GRAPH_HEIGHT, width=OPTIM_GRAPH_WIDTH, units="in", family="Arial")
@@ -299,6 +315,7 @@ plot
 
 ```{r optim-pysom-bc-jit, fig.width=8, fig.height=2.2, echo=FALSE}
 box_plot_data <- get_data_for_box_plot_optim(data_optim_pysom_bc, "RPySOM-bc-jit")
+assert_that_all_optimizations_have_all_benchmarks(box_plot_data)
 
 plot <- box_plot_optim(box_plot_data)
 ggsave(plot, device= cairo_pdf, path=".", filename=output_folder_path("optim-pysom-bc-jit.pdf"), dpi=300, height=OPTIM_GRAPH_HEIGHT, width=OPTIM_GRAPH_WIDTH, units="in", family="Arial")
