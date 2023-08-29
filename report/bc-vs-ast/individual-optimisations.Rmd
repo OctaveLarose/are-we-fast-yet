@@ -204,7 +204,15 @@ data_optim_tsom_ast <- get_and_format_new_data(load_data_url("https://rebench.st
 
 tsom_bc_jit_half <- load_data_url("https://rebench.stefan-marr.de/Are-We-Fast-Yet/data/3068")
 tsom_bc_jit_other_half <- load_data_url("https://rebench.stefan-marr.de/Are-We-Fast-Yet/data/3074")
-tsom_bc_interps <- load_data_url("https://rebench.stefan-marr.de/Are-We-Fast-Yet/data/3083")
+
+tsom_bc_interps <- load_data_url("https://rebench.stefan-marr.de/Are-We-Fast-Yet/data/3083") |>
+  # fix up data mislabeling
+  mutate(
+    exe = ifelse(exe == "TruffleSOM-bc-NativeCE-int-no-lower-prims" & str_detect(cmdline, "TruffleSOM/som-native-interp-bc"),
+                 "TruffleSOM-bc-NativeCE-int",
+                 as.character(exe)))
+tsom_bc_interps$exe <- factor(tsom_bc_interps$exe)
+
 data_optim_tsom_bc <- get_and_format_new_data(rbind(tsom_bc_jit_half, tsom_bc_jit_other_half, tsom_bc_interps))
 
 pysom_ast_interps <- load_data_url("https://rebench.stefan-marr.de/Are-We-Fast-Yet/data/3080")
