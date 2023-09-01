@@ -19,8 +19,10 @@ jit_data$exe[jit_data$exe=="TruffleSOM-ast-HotspotCE-jit"] <- "TruffleSOM-ast-Ho
 jit_data$exe[jit_data$exe=="TruffleSOM-bc-HotspotCE-jit"] <- "TruffleSOM-bc-HotspotCE-jit-main"
 
 
-interp_exes <- c("PySOM-bc-int", "Node-int", "PySOM-ast-int", "PyPy-int", "Java-int", "TruffleSOM-bc-NativeCE-int-astvsbc", "TruffleSOM-ast-NativeCE-int-astvsbc")
+#interp_exes <- c("PySOM-bc-int", "Node-int", "PySOM-ast-int", "PyPy-int", "Java-int", "TruffleSOM-bc-NativeCE-int-astvsbc", "TruffleSOM-ast-NativeCE-int-astvsbc")
 interp_data <- load_data_url("https://rebench.stefan-marr.de/Are-We-Fast-Yet/data/2987")
+node_int_data <- load_data_url("https://rebench.stefan-marr.de/Are-We-Fast-Yet/data/3219")
+interp_data <- rbind(interp_data %>% filter(exe != "Node-int"), load_data_url("https://rebench.stefan-marr.de/Are-We-Fast-Yet/data/3219"))
 interp_data$exe <- as.character(interp_data$exe)
 interp_data$exe[interp_data$exe=="TruffleSOM-ast-NativeCE-int"] <- "TruffleSOM-ast-NativeCE-int-astvsbc" # to make it fit the old data
 interp_data$exe[interp_data$exe=="TruffleSOM-bc-NativeCE-int"] <- "TruffleSOM-bc-NativeCE-int-astvsbc"
