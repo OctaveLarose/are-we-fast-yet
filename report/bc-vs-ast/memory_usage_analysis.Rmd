@@ -21,8 +21,8 @@ output_folder <- "../../../paper/images/"
 
 # Simple and direct code, no function, no duplication, just executed once
 data_rss <- rbind(
-  load_data_url("https://rebench.stefan-marr.de/TruffleSOM/data/2597"),
-  load_data_url("https://rebench.stefan-marr.de/RPySOM/data/2615")) |>
+  load_data_url("https://rebench.stefan-marr.de/RPySOM/data/3221") ,
+  load_data_url("https://rebench.stefan-marr.de/TruffleSOM/data/3224")) |>
   filter(criterion == "MaxRSS") |>
       subset(select = -c(commitid, expid, runid, trialid,
                          cmdline, 
