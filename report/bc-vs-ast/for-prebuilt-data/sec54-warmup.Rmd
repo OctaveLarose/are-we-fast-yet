@@ -15,14 +15,14 @@ data <- qread("../../../../data/warmup.qs")
 # dput(levels(data$exe))
 
 sorted_benchmarks <- c(
-  "DeltaBlue", "Json", "NBody", "Richards", 
-  "Bounce", "List", "Mandelbrot", "Permute",
-  "Queens", "Sieve", "Storage", "Towers"
+  "Bounce", "CD", "DeltaBlue", "Havlak", "Json",
+  "List", "Mandelbrot", "NBody", "Permute",
+  "Queens", "Richards", "Sieve", "Storage", "Towers"
 )
 
 sorted_exe <- c(
-  "RPySOM-ast-jit",
-  "RPySOM-bc-jit",
+  "PySOM-ast-jit",
+  "PySOM-bc-jit",
   
   "TruffleSOM-graal-ast",
   "TruffleSOM-graal-bc",
@@ -115,7 +115,7 @@ get_warmup_plots <- function(data, baseline_name, y_lab, dont_rename = FALSE) {
     theme(
       legend.title = element_blank(),
       legend.text.align = 0,
-      legend.position = c(0.9, 0.525)) +
+      legend.position = c(0.76, 0.1)) +
     ylab(y_lab) +
     facet_wrap(~ bench, scales = "free_y")
   
@@ -125,8 +125,8 @@ get_warmup_plots <- function(data, baseline_name, y_lab, dont_rename = FALSE) {
 plot_all <- get_warmup_plots(all_data, "TruffleSOM-graal-ast", expression(Normalized~to~median(TSOM[AST])), TRUE) # "Java-C2-jit")
 
 # graal_data <- rbind(all_data %>% filter(exe %in% c("TruffleSOM-graal-ast", "TruffleSOM-graal-bc")), data_java)
-graal_data <- all_data %>% filter(exe %in% c("TruffleSOM-graal-ast", "TruffleSOM-graal-bc"))
-plot_graal <- get_warmup_plots(graal_data, "TruffleSOM-graal-ast", expression(Normalized~to~median(TSOM[AST]))) # "Java-C2-jit")
+#graal_data <- all_data %>% filter(exe %in% c("TruffleSOM-graal-ast", "TruffleSOM-graal-bc"))
+#plot_graal <- get_warmup_plots(graal_data, "TruffleSOM-graal-ast", expression(Normalized~to~median(TSOM[AST]))) # "Java-C2-jit")
 
 # native_image_data <- rbind(all_data %>% filter(exe %in% c("TruffleSOM-native-ast", "TruffleSOM-native-bc")), data_java)
 native_image_data <- all_data %>% filter(exe %in% c("TruffleSOM-native-ast", "TruffleSOM-native-bc"))
@@ -142,8 +142,8 @@ print(plot_native)
 
 ```{r warmup-plot-pysom, echo=FALSE, dev='png', fig.keep='all', fig.width=10, fig.height=6}
 # pysom_data <- rbind(all_data %>% filter(exe %in% c("RPySOM-ast-jit", "RPySOM-bc-jit")), data_java)
-pysom_data <- all_data %>% filter(exe %in% c("RPySOM-ast-jit", "RPySOM-bc-jit"))
-plot_pysom <- get_warmup_plots(pysom_data, "RPySOM-ast-jit", expression(Normalized~to~median(PySOM[AST]))) # "Java-C2-jit")
+pysom_data <- all_data %>% filter(exe %in% c("PySOM-ast-jit", "PySOM-bc-jit"))
+plot_pysom <- get_warmup_plots(pysom_data, "PySOM-ast-jit", expression(Normalized~to~median(PySOM[AST]))) # "Java-C2-jit")
 print(plot_pysom)
 
 OUTPUT_WIDTH <- 5.5
