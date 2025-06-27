@@ -50,7 +50,6 @@ Run = (
     self doRuns: benchmarkSuite new.
     self reportBenchmark.
 
-    '' println
   )
 
   measure: bench = (
