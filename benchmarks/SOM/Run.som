@@ -86,7 +86,7 @@ Run = (
   printResult: runTime startGc: startGc endGc: endGc compileTime: compTime = (
     name print. ': GC count:     ' print. (((endGc) at: 1) - ((startGc) at: 1)) print. 'n' println.
     name print. ': GC time:      ' print. (((endGc) at: 2) - ((startGc) at: 2)) print. 'ms' println.
-    name print. ': Allocated:    ' print. (((endGc) at: 3) - ((startGc) at: 3)) print. 'bytes' println.
+    name print. ': Allocated:    ' print. ((endGc) at: 3) print. 'bytes' println.
     name print. ': Compile time: ' print. compTime print. 'ms' println.
 
     (name + ': iterations=1 runtime: ' + runTime + 'us') println
