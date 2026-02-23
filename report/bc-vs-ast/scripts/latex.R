@@ -38,6 +38,15 @@ CmdsMedianMinMaxRatioX <- function(cmd_prefix, data) {
   )
 }
 
+CmdsMean <- function(cmd_prefix, data) {
+  mean_cmd <- paste0(cmd_prefix, "Mean")
+  
+  c(
+    Cmd(mean_cmd, X2(data$mean_ratio)),
+    ""
+  )
+}
+
 X2 <- function(num) {
   paste0(format(num, digits=2, nsmall = 2), "\\texttimes")
 }

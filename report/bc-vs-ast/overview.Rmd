@@ -9,25 +9,28 @@ if (Sys.getenv("USER") == "smarr") {
 } else if (Sys.getenv("USER") == "sopi") {
   setwd("/home/sopi/Documents/Writing/2023/ast-vs-bc-interp/are-we-fast-yet/report/bc-vs-ast/" )
 } else {
-  setwd("/home/octavel/PhD/papers/ast-vs-bc-interp/are-we-fast-yet/report/bc-vs-ast")
+  setwd("/home/octavel/Programs/PhD_STUFF/are-we-fast-yet/report/bc-vs-ast")
 }
 source("scripts/libraries.R", chdir=TRUE)
 
-jit_data <- load_data_url("https://rebench.stefan-marr.de/Are-We-Fast-Yet/data/3048")
-jit_data$exe <- as.character(jit_data$exe)
-jit_data$exe[jit_data$exe=="TruffleSOM-ast-HotspotCE-jit"] <- "TruffleSOM-ast-HotspotCE-jit-main" # to make it fit the old data
-jit_data$exe[jit_data$exe=="TruffleSOM-bc-HotspotCE-jit"] <- "TruffleSOM-bc-HotspotCE-jit-main"
+# jit_data <- load_data_url("https://rebench.stefan-marr.de/Are-We-Fast-Yet/data/3048")
+# jit_data$exe <- as.character(jit_data$exe)
+# jit_data$exe[jit_data$exe=="TruffleSOM-ast-HotspotCE-jit"] <- "TruffleSOM-ast-HotspotCE-jit-main" # to make it fit the old data
+# jit_data$exe[jit_data$exe=="TruffleSOM-bc-HotspotCE-jit"] <- "TruffleSOM-bc-HotspotCE-jit-main"
+# 
+# 
+# #interp_exes <- c("PySOM-bc-int", "Node-int", "PySOM-ast-int", "PyPy-int", "Java-int", "TruffleSOM-bc-NativeCE-int-astvsbc", "TruffleSOM-ast-NativeCE-int-astvsbc")
+# interp_data <- load_data_url("https://rebench.stefan-marr.de/Are-We-Fast-Yet/data/2987")
+# node_int_data <- load_data_url("https://rebench.stefan-marr.de/Are-We-Fast-Yet/data/3219")
+# interp_data <- rbind(interp_data %>% filter(exe != "Node-int"), load_data_url("https://rebench.stefan-marr.de/Are-We-Fast-Yet/data/3219"))
+# interp_data$exe <- as.character(interp_data$exe)
+# interp_data$exe[interp_data$exe=="TruffleSOM-ast-NativeCE-int"] <- "TruffleSOM-ast-NativeCE-int-astvsbc" # to make it fit the old data
+# interp_data$exe[interp_data$exe=="TruffleSOM-bc-NativeCE-int"] <- "TruffleSOM-bc-NativeCE-int-astvsbc"
+# 
+# data <- rbind(jit_data, interp_data)
 
 
-#interp_exes <- c("PySOM-bc-int", "Node-int", "PySOM-ast-int", "PyPy-int", "Java-int", "TruffleSOM-bc-NativeCE-int-astvsbc", "TruffleSOM-ast-NativeCE-int-astvsbc")
-interp_data <- load_data_url("https://rebench.stefan-marr.de/Are-We-Fast-Yet/data/2987")
-node_int_data <- load_data_url("https://rebench.stefan-marr.de/Are-We-Fast-Yet/data/3219")
-interp_data <- rbind(interp_data %>% filter(exe != "Node-int"), load_data_url("https://rebench.stefan-marr.de/Are-We-Fast-Yet/data/3219"))
-interp_data$exe <- as.character(interp_data$exe)
-interp_data$exe[interp_data$exe=="TruffleSOM-ast-NativeCE-int"] <- "TruffleSOM-ast-NativeCE-int-astvsbc" # to make it fit the old data
-interp_data$exe[interp_data$exe=="TruffleSOM-bc-NativeCE-int"] <- "TruffleSOM-bc-NativeCE-int-astvsbc"
-
-data <- rbind(jit_data, interp_data)
+data <- qread("/home/octavel/Programs/PhD_STUFF/ast-vs-bc-experiments/data/overview.qs")
 
 # old
 #data <- rbind(data %>% filter(!(exe %in% interp_exes)), interp_data)
@@ -168,21 +171,7 @@ overview_box_plot <- function(stats, vms = NULL, prepare_data = NULL, pre_plot =
   # }
 
   median_fn <- median
-  
-#col_names <- names(vm_stats)
 
-# Loop over each column in the data
-#for (col in col_names) {
-  # Check for missing values (NA) in each column
-#  if (any(is.na(vm_stats[[col]]))) {
-#    cat(paste("Column", col, "has missing values\n"))
-#  }
-  # Check for non-finite values (Inf, -Inf, NaN) in each column
-#  if (!all(is.finite(vm_stats[[col]]))) {
-#    cat(paste("Column", col, "has non-finite values\n"))
-#  }
-#}
-  
   # Only two decimal places
   x_breaks <- round(x_breaks, 2)
   
@@ -203,10 +192,30 @@ overview_box_plot <- function(stats, vms = NULL, prepare_data = NULL, pre_plot =
     geom_vline(aes(xintercept=2), colour="#999999", linetype="dotted") +
     geom_vline(aes(xintercept=10), colour="#999999", linetype="dotted")
     
+  
+  means_df <- vm_stats %>%
+    group_by(exe) %>%
+    summarise(x = mean(ratio))
+  
   plot <- plot +
     geom_boxplot(outlier.size = 0.5,
                  aes(colour = exe, fill = exe), 
                   alpha=0.4) + #fill=get_color(5, 7)
+  #   stat_summary(
+  #     aes(color = exe),
+  #   fun = mean,
+  #   geom = "point",
+  #   shape = 23, # diamond
+  #   size = 1.4,
+  #   stroke = 0.4,
+  # ) +
+    geom_point(
+    data = means_df,                      
+    aes(x = x, y = exe, color = exe),
+    shape = 23, # diamond
+    size = 1.4,
+    stroke = 0.4
+    ) +
     scale_x_log10(breaks = x_breaks) +
     scale_y_discrete(label = function (x) parse(text=x)) +
     scale_color_manual(values = color_set_vms) +
@@ -234,6 +243,16 @@ overview_box_plot <- function(stats, vms = NULL, prepare_data = NULL, pre_plot =
   plot
 }
 
+plot <- overview_box_plot(results_int$stats$bench,
+                  c("PySOM-ast-int", "PySOM-bc-int",
+                    "TruffleSOM-ast-NativeCE-int-astvsbc", "TruffleSOM-bc-NativeCE-int-astvsbc",
+                    "Java20-int", "Node-int"),
+                  x_breaks = c(0.3, 0.5, 0.75, 1, 1.33333, 2, 3, 5, 10),
+                  x_lab = "lower is better")
+
+ggsave("tsom-pysom-interp-perf.pdf", plot, dpi=300, height=1.3, width=5.5, units="in", family="Arial", device=cairo_pdf)
+plot
+
 ```
 
 For VMs with just-in-time compilation, we report results based on
@@ -254,7 +273,7 @@ plot <- overview_box_plot(results_peak$stats$bench,
                     "TruffleSOM-bc-HotspotCE-jit-main", "Java20-C2-jit", "Node-jit"),
                   x_breaks = c(0.5, 0.75, 1, 1.33333, 2, 3, 5, 10, 20),
                   x_lab = "lower is better")
-ggsave("../../../paper/images/tsom-pysom-peak-perf.pdf", plot, device=cairo_pdf)
+ggsave("tsom-pysom-peak-perf.pdf", plot, dpi=300, height=1.3, width=5.5, units="in", family="Arial", device=cairo_pdf)
 plot
 ```
 
@@ -270,7 +289,9 @@ plot <- overview_box_plot(results_int$stats$bench,
                   x_breaks = c(0.3, 0.5, 0.75, 1, 1.33333, 2, 3, 5, 10),
                   x_lab = "lower is better")
 
-ggsave("../../../paper/images/tsom-pysom-interp-perf.pdf", plot, device=cairo_pdf)
+# mean(results_int$stats$bench %>% filter(exe == "Node-int") %>% pull(ratio))
+
+ggsave("tsom-pysom-interp-perf.pdf", plot, dpi=300, height=1.3, width=5.5, units="in", family="Arial", device=cairo_pdf)
 plot
 ```
 
@@ -278,7 +299,7 @@ plot
 ## Write to text file
 
 ```{r write-file}
-tex.file <- file("../../../paper/gen/overview.tex")
+tex.file <- file("gen/overview.tex")
 
 # Numbers for part 5.1
 min_row = results_int$stats$exe[which.min(results_int$stats$exe$min_ratio),]
@@ -292,11 +313,18 @@ macros = c(
   Cmd("LowestRatioIntJavaPer",       Per(min_row$min_ratio)),
   Cmd("LowestRatioIntJavaBenchmark", fastest_bench$bench),
   
+  CmdsMedianMinMaxRatioX("NodeInt", results_int$stats$exe |> filter(exe == "Node-int")),
+  CmdsMean("NodeInt", results_int$stats$exe |> filter(exe == "Node-int")),
+  
   CmdsMedianMinMaxRatioX("PySOMastInt", results_int$stats$exe |> filter(exe == "PySOM-ast-int")),
   CmdsMedianMinMaxRatioX("PySOMbcInt",  results_int$stats$exe |> filter(exe == "PySOM-bc-int")),
+  CmdsMean("PySOMastInt", results_int$stats$exe |> filter(exe == "PySOM-ast-int")),
+  CmdsMean("PySOMbcInt",  results_int$stats$exe |> filter(exe == "PySOM-bc-int")),
 
   CmdsMedianMinMaxRatioX("TSOMastInt", results_int$stats$exe |> filter(exe == "TruffleSOM-ast-NativeCE-int-astvsbc")),
-  CmdsMedianMinMaxRatioX("TSOMbcInt",  results_int$stats$exe |> filter(exe == "TruffleSOM-bc-NativeCE-int-astvsbc"))
+  CmdsMedianMinMaxRatioX("TSOMbcInt",  results_int$stats$exe |> filter(exe == "TruffleSOM-bc-NativeCE-int-astvsbc")),
+  CmdsMean("TSOMastInt", results_int$stats$exe |> filter(exe == "TruffleSOM-ast-NativeCE-int-astvsbc")),
+  CmdsMean("TSOMbcInt",  results_int$stats$exe |> filter(exe == "TruffleSOM-bc-NativeCE-int-astvsbc"))
 )
 
 # Numbers for part 5.2
@@ -306,12 +334,18 @@ max_row_jit = only_soms_jit[which.max(only_soms_jit$median_ratio),]
 
 macros = c(macros,
   CmdsMedianMinMaxRatioX("NodeJit", results_peak$stats$exe |> filter(exe == "Node-jit")),
+  CmdsMean("NodeJit", results_peak$stats$exe |> filter(exe == "Node-jit")),
   
   CmdsMedianMinMaxRatioX("PySOMastJit", results_peak$stats$exe |> filter(exe == "PySOM-ast-jit")),
   CmdsMedianMinMaxRatioX("PySOMbcJit",  results_peak$stats$exe |> filter(exe == "PySOM-bc-jit")),
   
+  CmdsMean("PySOMastJit", results_peak$stats$exe |> filter(exe == "PySOM-ast-jit")),
+  CmdsMean("PySOMbcJit",  results_peak$stats$exe |> filter(exe == "PySOM-bc-jit")),
+  
   CmdsMedianMinMaxRatioX("TSOMastJit", results_peak$stats$exe |> filter(exe == "TruffleSOM-ast-HotspotCE-jit-main")),
-  CmdsMedianMinMaxRatioX("TSOMbcJit",  results_peak$stats$exe |> filter(exe == "TruffleSOM-bc-HotspotCE-jit-main"))
+  CmdsMedianMinMaxRatioX("TSOMbcJit",  results_peak$stats$exe |> filter(exe == "TruffleSOM-bc-HotspotCE-jit-main")),
+  CmdsMean("TSOMastJit", results_peak$stats$exe |> filter(exe == "TruffleSOM-ast-HotspotCE-jit-main")),
+  CmdsMean("TSOMbcJit",  results_peak$stats$exe |> filter(exe == "TruffleSOM-bc-HotspotCE-jit-main"))
 )
 
 writeLines(macros, tex.file)

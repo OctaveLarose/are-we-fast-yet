@@ -176,7 +176,9 @@ compute_exe_stats <- function(data) {
     group_by(exe) %>%
     summarise(
       unit = unit[1],
+      og_ratio = list(ratio),
       median_ratio = median(ratio),
+      mean_ratio = mean(ratio),
       min_ratio = min(ratio),
       max_ratio = max(ratio),
       .groups = "drop")
